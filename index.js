@@ -85,28 +85,39 @@ const locationsSource = () => [
 	},
 ];
 
-const locations = locationsSource();
-
-const initPosition = () => {
-	const sum = locations.reduce((a, b) => ({ lat: a.lat + b.lat, lng: a.lng + b.lng }), { lat: 0, lng: 0 });
-	return {
-		zoom: 6,
-		center: { lat: sum.lat / locations.length, lng: sum.lng / locations.length },
-	};
-};
-
 window.initMap = () => {
-	const map = new google.maps.Map(document.getElementById("map"), initPosition());
+	const locations = locationsSource();
+
+	const buildings = document.getElementById("buildings");
+	buildings.innerHTML = ""; // remove element children
+	const buildingElements = locations.map((x) =>
+		buildings.appendChild(elementFromHtml(card(x.image, x.title, x.description)))
+	);
+
+	const map = new google.maps.Map(document.getElementById("map"), {
+		zoom: 6,
+		center: {
+			lat: average(locations.map((x) => x.lat)),
+			lng: average(locations.map((x) => x.lng)),
+		},
+	});
 	const markers = locations.map(
-		(location) =>
+		(location, i) =>
 			new google.maps.Marker({
 				position: { lat: location.lat, lng: location.lng },
 				label: location.title,
+				card: buildingElements[i],
 			})
 	);
 
-	// Add a marker clusterer to manage the markers.
-	new markerClusterer.MarkerClusterer({ markers, map });
+	const clusterer = new markerClusterer.MarkerClusterer({ markers, map });
+	const updateCards = () => {
+		const bounds = map.getBounds();
+		clusterer.markers.forEach((x) => (bounds.contains(x.getPosition()) ? show(x.card) : hide(x.card)));
+	};
+
+	map.addListener("center_changed", updateCards);
+	map.addListener("zoom_changed", updateCards);
 };
 
 const elementFromHtml = (html) => {
@@ -130,5 +141,6 @@ const card = (image, title, description) =>
   </div>
 </div>`;
 
-const buildings = document.getElementById("buildings");
-locations.forEach((x) => buildings.appendChild(elementFromHtml(card(x.image, x.title, x.description))));
+const hide = (element) => element.setAttribute("hidden", "");
+const show = (element) => element.removeAttribute("hidden");
+const average = (numbers) => numbers.reduce((a, b) => a + b, 0) / numbers.length;
