@@ -85,19 +85,26 @@ const locations = () => [
 	},
 ];
 
+const locations = locationsSource();
+
+const initPosition = () => {
+	const sum = locations.reduce((a, b) => ({ lat: a.lat + b.lat, lng: a.lng + b.lng }), { lat: 0, lng: 0 });
+	return {
+		zoom: 6,
+		center: { lat: sum.lat / locations.length, lng: sum.lng / locations.length },
+	};
+};
+
 window.initMap = () => {
-	const map = new google.maps.Map(document.getElementById("map"), {
-		zoom: 5,
-		center: { lat: -28.024, lng: 140.887 },
-	});
-	const markers = locations().map((location, i) => {
+	const map = new google.maps.Map(document.getElementById("map"), initPosition());
+	const markers = locations.map((location, i) => {
 		const marker = new google.maps.Marker({
 			position: { lat: location.lat, lng: location.lng },
 			label: location.title,
 		});
 		return marker;
 	});
-  
+
 	// Add a marker clusterer to manage the markers.
 	new markerClusterer.MarkerClusterer({ markers, map });
 };
@@ -155,4 +162,4 @@ buildings.appendChild(
 	)
 );
 
-locations().forEach(x => buildings.appendChild(elementFromHtml(card(x.image, x.title, x.description))))
+locations.forEach((x) => buildings.appendChild(elementFromHtml(card(x.image, x.title, x.description))));
