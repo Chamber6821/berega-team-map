@@ -131,35 +131,4 @@ const card = (image, title, description) =>
 </div>`;
 
 const buildings = document.getElementById("buildings");
-
-buildings.appendChild(
-	elementFromHtml(
-		card(
-			"https://d1muf25xaso8hp.cloudfront.net/https%3A%2F%2F7e84f1a57df011c41fb576b3421bc0e8.cdn.bubble.io%2Ff1700519301609x437900309108657100%2F3335.jpg?w=384&h=179&auto=compress&dpr=2&q=100&fit=max",
-			"Blue Sky Tower",
-			"270 апартаментов"
-		)
-	)
-);
-
-buildings.appendChild(
-	elementFromHtml(
-		card(
-			"https://cdn.britannica.com/73/114973-050-2DC46083/Midtown-Manhattan-Empire-State-Building-New-York.jpg",
-			"Empire State Building",
-			"много апартаментов"
-		)
-	)
-);
-
-buildings.appendChild(
-	elementFromHtml(
-		card(
-			"https://cdn.britannica.com/73/114973-050-2DC46083/Midtown-Manhattan-Empire-State-Building-New-York.jpg",
-			"Empire State Building",
-			"много апартаментов"
-		)
-	)
-);
-
 locations.forEach((x) => buildings.appendChild(elementFromHtml(card(x.image, x.title, x.description))));
