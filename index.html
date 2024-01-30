@@ -1,11 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Map</title>
+  <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <script type="module" src="/index.js" defer></script>
 </head>
+
 <body>
-  <h1>Hello World!</h1>
+  <div id="map"></div>
+  <div id="buildings"></div>
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCbN1SAfX4IF3X-adt6ekIpcjYPeigQ908&callback=initMap&v=weekly"
+    defer></script>
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </body>
+
 </html>
