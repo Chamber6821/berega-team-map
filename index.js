@@ -97,13 +97,13 @@ const initPosition = () => {
 
 window.initMap = () => {
 	const map = new google.maps.Map(document.getElementById("map"), initPosition());
-	const markers = locations.map((location, i) => {
-		const marker = new google.maps.Marker({
-			position: { lat: location.lat, lng: location.lng },
-			label: location.title,
-		});
-		return marker;
-	});
+	const markers = locations.map(
+		(location) =>
+			new google.maps.Marker({
+				position: { lat: location.lat, lng: location.lng },
+				label: location.title,
+			})
+	);
 
 	// Add a marker clusterer to manage the markers.
 	new markerClusterer.MarkerClusterer({ markers, map });
