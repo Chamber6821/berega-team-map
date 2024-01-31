@@ -5,20 +5,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Map</title>
-  <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
-  <link rel="stylesheet" href="/map.css">
-  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
-  <script type="module" src="/map.js" defer></script>
 </head>
 
 <body>
-  <div id="map"></div>
-  <div id="buildings"></div>
-  <script
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCbN1SAfX4IF3X-adt6ekIpcjYPeigQ908&callback=initMap&v=weekly"
-    defer></script>
-  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  <div style="width: 100%; height: 100%; display: flex;">
+    <div id="map"></div>
+    <div id="buildings"></div>
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <link rel="stylesheet" href="/map.css">
+    <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
+    <script type="module" src="/map.js" defer></script>
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCbN1SAfX4IF3X-adt6ekIpcjYPeigQ908&callback=initMap&v=weekly"
+      defer></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  </div>
 </body>
 
 </html>
