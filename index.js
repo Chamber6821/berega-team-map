@@ -85,7 +85,7 @@ const locationsSource = () => [
 	},
 ];
 
-const enablePaintingOnMap = (map) => {
+const enablePaintingOnMap = (map, onPoligonChanged = (polygon) => {}) => {
 	const draggable = { draggable: true, zoomControl: true, scrollwheel: true, disableDoubleClickZoom: false };
 	const notDraggable = { draggable: false, zoomControl: false, scrollwheel: false, disableDoubleClickZoom: true };
 	const polygon = new google.maps.Polygon({
@@ -105,6 +105,7 @@ const enablePaintingOnMap = (map) => {
 			if (fired) return;
 			fired = true;
 			polygon.setPath([]);
+			onPoligonChanged(polygon);
 		};
 		const altKeyUp = (e) => (fired = false);
 		document.addEventListener("keydown", altKeyDown);
@@ -125,7 +126,6 @@ const enablePaintingOnMap = (map) => {
 
 			const mousemove = map.addListener("mousemove", (e) => {
 				if (!(e.domEvent.altKey && e.domEvent.buttons & 1)) return;
-				console.log(e.domEvent.buttons);
 				polyline.getPath().push(e.latLng);
 			});
 
@@ -136,6 +136,7 @@ const enablePaintingOnMap = (map) => {
 				map.setOptions(draggable);
 				polyline.setMap(null);
 				polygon.setPath(polyline.getPath());
+				onPoligonChanged(polygon);
 			};
 			document.addEventListener("mouseup", mouseup);
 		};
@@ -178,15 +179,15 @@ window.initMap = () => {
 			})
 	);
 
-	const clusterer = new markerClusterer.MarkerClusterer({ markers, map });
-	const updateCards = () => {
-		const bounds = map.getBounds();
-		clusterer.markers.forEach((x) => (bounds.contains(x.getPosition()) ? show(x.card) : hide(x.card)));
-	};
+	const updateCards = (polygon) =>
+		polygon.getPath().length == 0
+			? markers.forEach((x) => show(x.card))
+			: markers.forEach((x) =>
+					google.maps.geometry.poly.containsLocation(x.getPosition(), polygon) ? show(x.card) : hide(x.card)
+			  );
 
-	map.addListener("center_changed", updateCards);
-	map.addListener("zoom_changed", updateCards);
-	enablePaintingOnMap(map);
+	enablePaintingOnMap(map, updateCards);
+	new markerClusterer.MarkerClusterer({ markers, map });
 };
 
 const elementFromHtml = (html) => {
