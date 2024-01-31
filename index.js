@@ -85,6 +85,74 @@ const locationsSource = () => [
 	},
 ];
 
+const enablePaintingOnMap = (map) => {
+	const draggable = { draggable: true, zoomControl: true, scrollwheel: true, disableDoubleClickZoom: false };
+	const notDraggable = { draggable: false, zoomControl: false, scrollwheel: false, disableDoubleClickZoom: true };
+	const polygon = new google.maps.Polygon({
+		map,
+		paths: [],
+		strokeColor: "#00FF00",
+		strokeOpacity: 0.8,
+		strokeWeight: 2,
+		fillColor: "#00FF00",
+		fillOpacity: 0.1,
+		clickable: false,
+	});
+	const mouseover = map.addListener("mouseover", () => {
+		let fired = false;
+		const altKeyDown = (e) => {
+			if (!e.altKey) return;
+			if (fired) return;
+			fired = true;
+			polygon.setPath([]);
+		};
+		const altKeyUp = (e) => (fired = false);
+		document.addEventListener("keydown", altKeyDown);
+		document.addEventListener("keyup", altKeyUp);
+
+		const mousedown = (e) => {
+			if (!e.altKey) return;
+			map.setOptions(notDraggable);
+
+			const polyline = new google.maps.Polyline({
+				map,
+				path: [],
+				geodesic: true,
+				strokeColor: "#FFFF00",
+				strokeOpacity: 1.0,
+				strokeWeight: 2,
+			});
+
+			const mousemove = map.addListener("mousemove", (e) => {
+				if (!(e.domEvent.altKey && e.domEvent.buttons & 1)) return;
+				console.log(e.domEvent.buttons);
+				polyline.getPath().push(e.latLng);
+			});
+
+			const mouseup = (e) => {
+				document.removeEventListener("mouseup", mouseup);
+				google.maps.event.removeListener(mousemove);
+
+				map.setOptions(draggable);
+				polyline.setMap(null);
+				polygon.setPath(polyline.getPath());
+			};
+			document.addEventListener("mouseup", mouseup);
+		};
+		document.addEventListener("mousedown", mousedown);
+
+		const mouseout = map.addListener("mouseout", () => {
+			google.maps.event.removeListener(mouseout);
+			document.removeEventListener("mousedown", mousedown);
+			document.removeEventListener("keydown", altKeyDown);
+			document.removeEventListener("keyup", altKeyUp);
+		});
+	});
+	return {
+		disable: () => google.maps.event.removeListener(mouseover),
+	};
+};
+
 window.initMap = () => {
 	const locations = locationsSource();
 
@@ -118,6 +186,7 @@ window.initMap = () => {
 
 	map.addListener("center_changed", updateCards);
 	map.addListener("zoom_changed", updateCards);
+	enablePaintingOnMap(map);
 };
 
 const elementFromHtml = (html) => {
