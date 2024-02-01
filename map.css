@@ -39,7 +39,7 @@ body {
   border-top-right-radius: 16px;
 }
 
-.building button {
+.like {
   position: absolute;
   top: 0;
   right: 0;
@@ -52,23 +52,23 @@ body {
   color: rgb(233, 78, 81);
 }
 
-.building ion-icon {
+.like ion-icon {
   cursor: pointer;
 }
 
-.building button:hover ion-icon[name="heart"] {
+.like:hover ion-icon[name="heart"] {
   display: initial;
 }
 
-.building button:hover ion-icon[name="heart-outline"] {
+.like:hover ion-icon[name="heart-outline"] {
   display: none;
 }
 
-.building button:not(:hover) ion-icon[name="heart"] {
+.like:not(:hover) ion-icon[name="heart"] {
   display: none;
 }
 
-.building button:not(:hover) ion-icon[name="heart-outline"] {
+.like:not(:hover) ion-icon[name="heart-outline"] {
   display: initial;
 }
 
