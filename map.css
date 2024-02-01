@@ -2,7 +2,9 @@ body {
   display: flex;
   margin: 0;
   top: 0;
-  `
+  --font_default: Inter;
+  --color_primary_default: rgb(67, 150, 57);
+  --color_surface_default: #FFF;
 }
 
 #map {
@@ -20,7 +22,6 @@ body {
 }
 
 .building {
-  --font_default: Inter;
   width: 300px;
   position: relative;
   box-shadow: rgba(170, 170, 170, 0.4) 0px 0px 8px 0px;
@@ -72,7 +73,8 @@ body {
   display: initial;
 }
 
-.building h1 {
+.building h1,
+#map-modal h1 {
   font-family: var(--font_default);
   font-size: 16px;
   font-weight: 600;
@@ -80,11 +82,86 @@ body {
   margin: 0px;
 }
 
-.building p {
+.building p,
+#map-modal p {
   font-family: var(--font_default);
   font-size: 14px;
   font-weight: 400;
   color: rgba(97, 98, 123, 1);
   margin: 0px;
   margin-top: 6px;
+}
+
+#map-modal {
+  position: fixed;
+  width: 100dvw;
+  height: 100dvh;
+  background-color: #0007;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#map-modal .card {
+  display: grid;
+  position: relative;
+  max-width: 400px;
+  background-color: #FFF;
+  border-radius: 16px;
+  box-shadow: rgba(74, 86, 111, 0.1) 0px 0px 10px 0px;
+}
+
+#map-modal .body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+}
+
+#map-modal img {
+  width: 100%;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+}
+
+#map-modal .location * {
+  margin: 0;
+}
+
+#map-modal .group {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+#map-modal .price {
+  font-weight: 700;
+  color: rgb(0, 114, 61);
+}
+
+#map-modal .building-page {
+  display: block;
+  align-self: center;
+  background-color: var(--color_primary_default);
+  color: var(--color_surface_default);
+  font-family: var(--font_default);
+  font-size: 14px;
+  padding: 12px 16px;
+  border-radius: 100px;
+  margin-top: 10px;
+  margin-bottom: 8px;
+  text-decoration: none;
+}
+
+#map-modal .tag {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 8px;
+  color: var(--color_surface_default);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 4px 8px;
+  background-color: var(--color_primary_default);
+  border-radius: 8px;
 }
