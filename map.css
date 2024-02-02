@@ -109,6 +109,7 @@ body {
   background-color: #FFF;
   border-radius: 16px;
   box-shadow: rgba(74, 86, 111, 0.1) 0px 0px 10px 0px;
+  padding: 16px;
 }
 
 #map-modal .body {
@@ -120,8 +121,7 @@ body {
 
 #map-modal img {
   width: 100%;
-  border-top-left-radius: 16px;
-  border-top-right-radius: 16px;
+  border-radius: 16px;
 }
 
 #map-modal .location * {
@@ -149,7 +149,6 @@ body {
   padding: 12px 16px;
   border-radius: 100px;
   margin-top: 10px;
-  margin-bottom: 8px;
   text-decoration: none;
 }
 
