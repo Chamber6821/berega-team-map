@@ -164,3 +164,9 @@ body {
   background-color: var(--color_primary_default);
   border-radius: 8px;
 }
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
