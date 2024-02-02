@@ -11,31 +11,30 @@
   <div style="width: 100%; height: 100%; display: flex;">
     <div id="map"></div>
     <div id="buildings"></div>
-    <div id="map-modal">
+    <div id="map-modal" style="display: none;">
       <div class="card">
         <div style="position: relative;">
-          <img src="https://s3.amazonaws.com/architecture-org/files/buildings/sqr_lrg_aon-center-eric-rogers-013.jpg">
+          <img id="map-modal-image" src="">
           <button class="like">
             <div style="scale: 1.9;">
               <ion-icon name="heart-outline" aria-label="Favorite"></ion-icon>
               <ion-icon name="heart" aria-label="Favorite"></ion-icon>
             </div>
           </button>
-          <p class="tag">Менее 10 минут до центра</p>
+          <p id="map-modal-tag" class="tag"></p>
         </div>
         <div class="body">
           <div class="location">
-            <h1>Alliance Centropolis</h1>
-            <p>г Батуми, Район Шериф Химшиашвили</p>
+            <h1 id="map-modal-title"></h1>
+            <p id="map-modal-address"></p>
           </div>
           <div class="group">
-            <p>29 апартаментов</p>
-            <p class="price">от 67 496 $</p>
+            <p id="map-modal-description"></p>
+            <p id="map-modal-price" class="price"></p>
           </div>
-          <p>Дата сдачи • I квартал 2027</p>
-          <p>Застройщик • Alliance Group</p>
-          <a class="building-page" target="_blank"
-            href="https://s3.amazonaws.com/architecture-org/files/buildings/sqr_lrg_aon-center-eric-rogers-013.jpg">
+          <div id="map-modal-long-description" class="flex-column">
+          </div>
+          <a id="map-modal-page" class="building-page" target="_blank" href="">
             Открыть страницу ЖК
           </a>
         </div>
