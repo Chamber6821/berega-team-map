@@ -1,15 +1,9 @@
-const listFrom = async (url) => {
-	const response = await fetch(url);
-	if (response.status !== 200) {
-		console.error(`Failed download '${url}' with status ${response.status}`);
-		return [];
-	}
-	const list = (await response.json()).response.results;
-	//console.log(url, list);
-	return list;
-};
+const listFrom = async (url) => (await (await fetch(url)).json())?.response?.results || [];
 
-const listOfType = async (type) => await listFrom(`https://berega.team/version-test/api/1.1/obj/${type}`);
+const baseUrl = () =>
+	window.location.href.includes("version-test") ? "https://berega.team/version-test" : "https://berega.team";
+
+const listOfType = async (type) => await listFrom(`${baseUrl()}/api/1.1/obj/${type}`);
 
 const idMap = (list) => list.reduce((obj, element) => ({ ...obj, [element._id]: element }), {});
 
@@ -25,19 +19,19 @@ const getResidentialComplexes = async () => {
 	const apartmentMap = idMap(apartments);
 	return complexes.map((x) => ({
 		title: x.name,
-		description: `${x.apartments ? x.apartments.length : 0} апартаментов`,
+		description: `${x.apartments?.length || 0} апартаментов`,
 		longDescription: [
 			`Дата сдачи • ${x["due_date (OS)"] || "Не изветно"}`,
-			`Застройщик • ${developerMap[x["Developer"]] ? developerMap[x["Developer"]].name : "Не известен"}`,
+			`Застройщик • ${developerMap[x["Developer"]]?.name || "Не известен"}`,
 		],
-		tag: x.features && x.features.length >= 1 ? featureMap[x.features[0]].name : "",
+		tag: featureMap?.[x.features?.[0]]?.name || "",
 		price: x.apartments
-			? `от ${x.apartments.map((x) => apartmentMap[x].total_price).reduce((a, b) => (a < b ? a : b), Infinity)} $`
+			? `от ${x.apartments.map((x) => apartmentMap[x]?.total_price).reduce(Math.min, Infinity)} $`
 			: "Не определено",
-		lat: x.address ? x.address.lat : 0,
-		lng: x.address ? x.address.lng : 0,
-		address: x.address ? x.address.address : "Нет адреса",
-		image: x.pictures.length >= 1 ? x.pictures[0] : "",
+		lat: x.address?.lat || 0,
+		lng: x.address?.lng || 0,
+		address: x.address?.address || "Нет адреса",
+		image: x.pictures?.[0] || "",
 		page: `https://berega.team/residential_complex/${x._id}`,
 	}));
 };
@@ -49,12 +43,12 @@ const getSecondHomes = async () => {
 		title: x.name,
 		description: "Не понял откуда брать",
 		longDescription: ["Дата сдачи неизвестна", "Застройщик неизвестен"],
-		tag: x.Features && x.Features.length >= 1 ? featureMap[x.Features[0]].name : "",
+		tag: featureMap?.[x.Features?.[0]]?.name || "",
 		price: `${x.price} $`,
-		lat: x.address ? x.address.lat : 0,
-		lng: x.address ? x.address.lng : 0,
-		address: x.address ? x.address.address : "Нет адреса",
-		image: x.pictures.length >= 1 ? x.pictures[0] : "",
+		lat: x.address?.lat || 0,
+		lng: x.address?.lng || 0,
+		address: x.address?.address || "Нет адреса",
+		image: x.pictures?.[0] || "",
 		page: `https://berega.team/second_home/${x._id}`,
 	}));
 };
