@@ -1,98 +1,48 @@
-const locationsSource = () =>
-	[
-		{
-			image: "https://s3.amazonaws.com/architecture-org/files/buildings/sqr_lrg_aon-center-eric-rogers-013.jpg",
-			title: "A",
-			description: "",
-			lat: -33.718234,
-			lng: 150.363181,
-		},
-		{
-			image: "https://images.adsttc.com/media/images/5da1/c12e/3312/fd49/8d00/01f1/newsletter/210.jpg?1570881829",
-			title: "B",
-			description: "",
-			lat: -33.727111,
-			lng: 150.371124,
-		},
-		{
-			image: "https://www.themillsbuilding.com/userfiles/cms/building/images/1/building.jpg",
-			title: "C",
-			description: "",
-			lat: -33.848588,
-			lng: 151.209834,
-		},
-		{
-			image: "https://www.itke.uni-stuttgart.de/.content/fotostrecken_v3/ICD-ITKE-FIT2023_van_Grachten/ICD_ITKE-FIT2023_CvdG_01.jpg?__scale=w:1170,h:658,cx:0,cy:79,cw:1520,ch:854",
-			title: "D",
-			description: "",
-			lat: -33.851702,
-			lng: 151.216968,
-		},
-		{
-			image: "https://5.imimg.com/data5/SELLER/Default/2023/1/XH/BI/FH/48148637/residential-building-construction-services.png",
-			title: "E",
-			description: "",
-			lat: -34.671264,
-			lng: 150.863657,
-		},
-		{
-			image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQI37gwmFwi2vrfEeDYV4JLRYcp2IKZKGjS8A&usqp=CAU",
-			title: "F",
-			description: "",
-			lat: -35.304724,
-			lng: 148.662905,
-		},
-		{
-			image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRaelwVmOL-6aY8Kc-f-N0V8ncpdCC2zJ5KBw&usqp=CAU",
-			title: "G",
-			description: "",
-			lat: -37.759859,
-			lng: 145.128708,
-		},
-		{
-			image: "https://media.blogto.com/articles/2020922-flatiron.jpg?w=2048&cmd=resize_then_crop&height=1365&quality=70",
-			title: "H",
-			description: "",
-			lat: -37.765015,
-			lng: 145.133858,
-		},
-		{
-			image: "https://i.pinimg.com/736x/ef/1f/20/ef1f20285259cde1c5d9dd68ed72586b.jpg",
-			title: "I",
-			description: "",
-			lat: -37.770104,
-			lng: 145.143299,
-		},
-		{
-			image: "https://i0.wp.com/theconstructor.org/wp-content/uploads/2014/10/Residential-building.jpg?resize=450%2C268&ssl=1",
-			title: "J",
-			description: "",
-			lat: -37.774785,
-			lng: 145.137978,
-		},
-		{
-			image: "https://d3rcx32iafnn0o.cloudfront.net/Pictures/460x307/0/7/3/1960073_stantonwilliams_ucleastmarshgate_04_huftoncrow_941683_crop.jpg",
-			title: "K",
-			description: "",
-			lat: -37.819616,
-			lng: 144.968119,
-		},
-		{
-			image: "https://www.roofingmegastore.co.uk/media/wysiwyg/9._The_Dancing_House_Prague-min.jpg",
-			title: "L",
-			description: "",
-			lat: -38.330766,
-			lng: 144.695692,
-		},
-	].map((x) => ({
-		...x,
-		description: "очень много апартаментов",
-		price: "от 99 999 $",
-		tag: "Лучший вариант",
-		address: "г.Пушкина д.Колотушкина",
-		longDescription: ["Сдали без б", "Застройщик лучший просто"],
-		page: x.image,
+const listFrom = async (url) => {
+	const response = await fetch(url);
+	if (response.status !== 200) {
+		console.error(`Failed download '${url}' with status ${response.status}`);
+		return [];
+	}
+	const list = (await response.json()).response.results;
+	//console.log(url, list);
+	return list;
+};
+
+const listOfType = async (type) => await listFrom(`https://berega.team/version-test/api/1.1/obj/${type}`);
+
+const idMap = (list) => list.reduce((obj, element) => ({ ...obj, [element._id]: element }), {});
+
+const getResidentialComplexes = async () => {
+	const [developers, features, complexes, apartments] = await Promise.all([
+		listOfType("developer"),
+		listOfType("features"),
+		listOfType("residentialcomplex"),
+		listOfType("apartments"),
+	]);
+	const developerMap = idMap(developers);
+	const featureMap = idMap(features);
+	const apartmentMap = idMap(apartments);
+	return complexes.map((x) => ({
+		title: x.name,
+		description: `${x.apartments ? x.apartments.length : 0} апартаментов`,
+		longDescription: [
+			`Дата сдачи • ${x["due_date (OS)"] || "Не изветно"}`,
+			`Застройщик • ${developerMap[x["Developer"]] ? developerMap[x["Developer"]].name : "Не известен"}`,
+		],
+		tag: x.features && x.features.length >= 1 ? featureMap[x.features[0]].name : "",
+		price: x.apartments
+			? `от ${x.apartments.map((x) => apartmentMap[x].total_price).reduce((a, b) => (a < b ? a : b), Infinity)} $`
+			: "Не определено",
+		lat: x.address ? x.address.lat : 0,
+		lng: x.address ? x.address.lng : 0,
+		address: x.address ? x.address.address : "Нет адреса",
+		image: x.pictures.length >= 1 ? x.pictures[0] : "",
+		page: `https://berega.team/residential_complex/${x._id}`,
 	}));
+};
+
+const locationsSource = async () => await getResidentialComplexes();
 
 const enablePaintingOnMap = (map, onPoligonChanged = (polygon) => {}) => {
 	const draggable = { draggable: true, zoomControl: true, scrollwheel: true, disableDoubleClickZoom: false };
@@ -163,8 +113,8 @@ const enablePaintingOnMap = (map, onPoligonChanged = (polygon) => {}) => {
 	};
 };
 
-window.initMap = () => {
-	const locations = locationsSource();
+window.initMap = async () => {
+	const locations = await locationsSource();
 
 	const buildings = document.getElementById("buildings");
 	buildings.innerHTML = ""; // remove element children
