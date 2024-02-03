@@ -42,7 +42,25 @@ const getResidentialComplexes = async () => {
 	}));
 };
 
-const locationsSource = async () => await getResidentialComplexes();
+const getSecondHomes = async () => {
+	const [homes, features] = await Promise.all([listOfType("secondhomes"), listOfType("features")]);
+	const featureMap = idMap(features);
+	return homes.map((x) => ({
+		title: x.name,
+		description: "Не понял откуда брать",
+		longDescription: ["Дата сдачи неизвестна", "Застройщик неизвестен"],
+		tag: x.Features && x.Features.length >= 1 ? featureMap[x.Features[0]].name : "",
+		price: `${x.price} $`,
+		lat: x.address ? x.address.lat : 0,
+		lng: x.address ? x.address.lng : 0,
+		address: x.address ? x.address.address : "Нет адреса",
+		image: x.pictures.length >= 1 ? x.pictures[0] : "",
+		page: `https://berega.team/second_home/${x._id}`,
+	}));
+};
+
+const locationsSource = async () =>
+	(await Promise.all([getResidentialComplexes(), getSecondHomes()])).reduce((a, b) => [...a, ...b], []);
 
 const enablePaintingOnMap = (map, onPoligonChanged = (polygon) => {}) => {
 	const draggable = { draggable: true, zoomControl: true, scrollwheel: true, disableDoubleClickZoom: false };
