@@ -49,7 +49,7 @@ const getSecondHomes = async () => {
 		shortDescription: "Не понял откуда брать",
 		description: [
 			["Цена", `${x.price} $`],
-			["Цена за м²", `${x.price_per_meter.toFixed(2)} $`],
+			["Цена за м²", `${x.price_per_meter?.toFixed(2)} $`],
 			[`${x.floor} этаж, ${x.total_area} м²`],
 		],
 		tag: featureMap?.[x.Features?.[0]]?.name || "",
