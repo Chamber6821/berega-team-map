@@ -179,7 +179,7 @@ const elementFromHtml = (html) => {
 
 const card = (image, title, description) =>
 	`<div class="building">
-  <img src="${image}">
+  <img loading="lazy" src="${image}">
   <button class="like">
     <div style="scale: 1.9;">
       <ion-icon name="heart-outline" aria-label="Favorite"></ion-icon>
