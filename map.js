@@ -19,18 +19,20 @@ const getResidentialComplexes = async () => {
 	const apartmentMap = idMap(apartments);
 	return complexes.map((x) => ({
 		title: x.name,
-		description: `${x.apartments?.length || 0} апартаментов`,
-		longDescription: [
-			`Дата сдачи • ${x["due_date (OS)"] || "Не изветно"}`,
-			`Застройщик • ${developerMap[x["Developer"]]?.name || "Не известен"}`,
+		shortDescription: `${x.apartments?.length || 0} апартаментов`,
+		description: [
+			[
+				`${x.apartments?.length || 0} апартаментов`,
+				x.apartments &&
+					`от ${x.apartments
+						.map((x) => apartmentMap[x]?.total_price)
+						.filter((x) => x !== undefined)
+						.reduce((a, b) => (a < b ? a : b), Infinity)} $`,
+			],
+			[`Дата сдачи • ${x["due_date (OS)"] || "Не изветно"}`],
+			[`Застройщик • ${developerMap[x["Developer"]]?.name || "Не известен"}`],
 		],
 		tag: featureMap?.[x.features?.[0]]?.name || "",
-		price: x.apartments
-			? `от ${x.apartments
-					.map((x) => apartmentMap[x]?.total_price)
-					.filter((x) => x !== undefined)
-					.reduce((a, b) => (a < b ? a : b), Infinity)} $`
-			: "Не определено",
 		lat: x.address?.lat || 0,
 		lng: x.address?.lng || 0,
 		address: x.address?.address || "Нет адреса",
@@ -44,8 +46,12 @@ const getSecondHomes = async () => {
 	const featureMap = idMap(features);
 	return homes.map((x) => ({
 		title: x.name,
-		description: "Не понял откуда брать",
-		longDescription: ["Дата сдачи неизвестна", "Застройщик неизвестен"],
+		shortDescription: "Не понял откуда брать",
+		description: [
+			["Цена", `${x.price} $`],
+			["Цена за м²", `${x.price_per_meter.toFixed(2)} $`],
+			[`${x.floor} этаж, ${x.total_area} м²`],
+		],
 		tag: featureMap?.[x.Features?.[0]]?.name || "",
 		price: `${x.price} $`,
 		lat: x.address?.lat || 0,
@@ -134,7 +140,7 @@ window.initMap = async () => {
 	const buildings = document.getElementById("buildings");
 	buildings.innerHTML = ""; // remove element children
 	const buildingElements = locations.map((x) =>
-		buildings.appendChild(elementFromHtml(card(x.image, x.title, x.description)))
+		buildings.appendChild(elementFromHtml(card(x.image, x.title, x.shortDescription)))
 	);
 
 	const map = new google.maps.Map(document.getElementById("map"), {
@@ -186,20 +192,24 @@ const card = (image, title, description) =>
   </div>
 </div>`;
 
+const modalRow = (simpleText = "", greenText = "") =>
+	`<div class="group">
+		<p>${simpleText}</p>
+		<p class="price">${greenText}</p>
+	</div>`;
+
 const hide = (element) => element.setAttribute("hidden", "");
 const show = (element) => element.removeAttribute("hidden");
 const average = (numbers) => numbers.reduce((a, b) => a + b, 0) / numbers.length;
 
-const showModal = ({ tag, image, title, address, description, price, longDescription, page }) => {
+const showModal = ({ tag, image, title, address, description, page }) => {
 	document.getElementById("map-modal-tag").textContent = tag;
 	document.getElementById("map-modal-image").setAttribute("src", image);
 	document.getElementById("map-modal-title").textContent = title;
 	document.getElementById("map-modal-address").textContent = address;
-	document.getElementById("map-modal-description").textContent = description;
-	document.getElementById("map-modal-price").textContent = price;
-	document.getElementById("map-modal-long-description").innerHTML = longDescription
-		.map((x) => `<p>${x}</p>`)
-		.reduce((a, b) => a + b, "");
+	document
+		.getElementById("map-modal-description")
+		.replaceChildren(...description.map(([simple, green]) => elementFromHtml(modalRow(simple, green))));
 	document.getElementById("map-modal-page").setAttribute("href", page);
 
 	const modal = document.getElementById("map-modal");
