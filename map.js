@@ -144,7 +144,7 @@ window.initMap = async () => {
 	const markers = locations.map((location, i) => {
 		const marker = new google.maps.Marker({
 			position: { lat: location.lat, lng: location.lng },
-			label: location.title,
+			label: "",
 			card: buildingElements[i],
 		});
 		marker.addListener("click", () => showModal(location));
