@@ -26,7 +26,10 @@ const getResidentialComplexes = async () => {
 		],
 		tag: featureMap?.[x.features?.[0]]?.name || "",
 		price: x.apartments
-			? `от ${x.apartments.map((x) => apartmentMap[x]?.total_price).reduce(Math.min, Infinity)} $`
+			? `от ${x.apartments
+					.map((x) => apartmentMap[x]?.total_price)
+					.filter((x) => x !== undefined)
+					.reduce((a, b) => (a < b ? a : b), Infinity)} $`
 			: "Не определено",
 		lat: x.address?.lat || 0,
 		lng: x.address?.lng || 0,
