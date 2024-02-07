@@ -1,0 +1,16 @@
+{
+  "name": "berega-team-map",
+  "version": "1.0.0",
+  "main": "map.html",
+  "type": "module",
+  "author": "Chamber6821 <vania.osinin@yandex.ru>",
+  "license": "MIT",
+  "scripts": {
+    "compile": "npx inline-script-tags map.html inline-js-map.html && npx inline-stylesheets inline-js-map.html out/map.html && node extract.js out/map.html && npx shx rm inline-js-map.html"
+  },
+  "devDependencies": {
+    "inline-scripts": "^1.7.4",
+    "jsdom": "21.1.2",
+    "shelljs": "^0.8.5"
+  }
+}

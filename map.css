@@ -1,12 +1,3 @@
-body {
-  display: flex;
-  margin: 0;
-  top: 0;
-  --font_default: Inter;
-  --color_primary_default: rgb(67, 150, 57);
-  --color_surface_default: #FFF;
-}
-
 #map {
   flex: 50%;
   height: 100dvh;
