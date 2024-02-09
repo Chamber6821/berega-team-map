@@ -29,7 +29,7 @@ const getResidentialComplexes = async () => {
 						.filter((x) => x !== undefined)
 						.reduce((a, b) => (a < b ? a : b), Infinity)} $`,
 			],
-			[`Дата сдачи • ${x["due_date (OS)"] || "Не изветно"}`],
+			[`Дата сдачи • ${x["due_date (OS)"] || "Не известно"}`],
 			[`Застройщик • ${developerMap[x["Developer"]]?.name || "Не известен"}`],
 		],
 		tag: featureMap?.[x.features?.[0]]?.name || "",
@@ -65,7 +65,7 @@ const getSecondHomes = async () => {
 const locationsSource = async () =>
 	(await Promise.all([getResidentialComplexes(), getSecondHomes()])).reduce((a, b) => [...a, ...b], []);
 
-const enablePaintingOnMap = (map, onPoligonChanged = (polygon) => {}) => {
+const enablePaintingOnMap = (map, onPolygonChanged = (polygon) => {}) => {
 	const draggable = { draggable: true, zoomControl: true, scrollwheel: true, disableDoubleClickZoom: false };
 	const notDraggable = { draggable: false, zoomControl: false, scrollwheel: false, disableDoubleClickZoom: true };
 	const polygon = new google.maps.Polygon({
@@ -85,7 +85,7 @@ const enablePaintingOnMap = (map, onPoligonChanged = (polygon) => {}) => {
 			if (fired) return;
 			fired = true;
 			polygon.setPath([]);
-			onPoligonChanged(polygon);
+			onPolygonChanged(polygon);
 		};
 		const altKeyUp = (e) => (fired = false);
 		document.addEventListener("keydown", altKeyDown);
@@ -116,7 +116,7 @@ const enablePaintingOnMap = (map, onPoligonChanged = (polygon) => {}) => {
 				map.setOptions(draggable);
 				polyline.setMap(null);
 				polygon.setPath(polyline.getPath());
-				onPoligonChanged(polygon);
+				onPolygonChanged(polygon);
 			};
 			document.addEventListener("mouseup", mouseup);
 		};
