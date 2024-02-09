@@ -160,12 +160,26 @@ window.initMap = async () => {
 		return marker;
 	});
 
-	const updateCards = (polygon) =>
-		polygon.getPath().length == 0
-			? markers.forEach((x) => show(x.card))
-			: markers.forEach((x) =>
-					google.maps.geometry.poly.containsLocation(x.getPosition(), polygon) ? show(x.card) : hide(x.card)
-			  );
+	let currentPolygon = null;
+
+	const updateCards = (polygon) => {
+		currentPolygon = polygon;
+		const showAny = (x) => show(x.card);
+		const showIncluded = (x) =>
+			google.maps.geometry.poly.containsLocation(x.getPosition(), polygon) ? show(x.card) : hide(x.card);
+		const showIf = polygon.getPath().length == 0 ? showAny : showIncluded;
+
+		const packSize = 16;
+		const iteration = (base) => {
+			if (currentPolygon !== polygon) return;
+			for (let i = 0; i < packSize; i++) {
+				if (base + i >= markers.length) return;
+				showIf(markers[base + i]);
+			}
+			setTimeout(() => iteration(base + packSize), 1);
+		};
+		setTimeout(() => iteration(0), 1);
+	};
 
 	enablePaintingOnMap(map, updateCards);
 	new markerClusterer.MarkerClusterer({ markers, map });
