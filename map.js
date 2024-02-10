@@ -162,12 +162,12 @@ window.initMap = async () => {
 
 	let updateInstance = {};
 	const updateCards = (polygon) => {
-		const localInstance = {};
-		updateInstance = localInstance;
-		const showAny = (x) => show(x.card);
-		const showIncluded = (x) =>
+		const localInstance = (updateInstance = {});
+		const bounds = map.getBounds();
+		const showInBounds = (x) => (bounds.contains(x.getPosition()) ? show(x.card) : hide(x.card));
+		const showInPolygon = (x) =>
 			google.maps.geometry.poly.containsLocation(x.getPosition(), polygon) ? show(x.card) : hide(x.card);
-		const showIf = polygon.getPath().length == 0 ? showAny : showIncluded;
+		const showIf = !polygon || polygon.getPath().length == 0 ? showInBounds : showInPolygon;
 
 		const packSize = 16;
 		const iteration = (base) => {
@@ -182,6 +182,9 @@ window.initMap = async () => {
 	};
 
 	enablePaintingOnMap(map, updateCards);
+	map.addListener("center_changed", updateCards);
+	map.addListener("zoom_changed", updateCards);
+
 	new markerClusterer.MarkerClusterer({ markers, map });
 };
 
