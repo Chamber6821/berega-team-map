@@ -160,10 +160,10 @@ window.initMap = async () => {
 		return marker;
 	});
 
-	let currentPolygon = null;
-
+	let updateInstance = {};
 	const updateCards = (polygon) => {
-		currentPolygon = polygon;
+		const localInstance = {};
+		updateInstance = localInstance;
 		const showAny = (x) => show(x.card);
 		const showIncluded = (x) =>
 			google.maps.geometry.poly.containsLocation(x.getPosition(), polygon) ? show(x.card) : hide(x.card);
@@ -171,7 +171,7 @@ window.initMap = async () => {
 
 		const packSize = 16;
 		const iteration = (base) => {
-			if (currentPolygon !== polygon) return;
+			if (updateInstance !== localInstance) return;
 			for (let i = 0; i < packSize; i++) {
 				if (base + i >= markers.length) return;
 				showIf(markers[base + i]);
