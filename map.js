@@ -148,7 +148,7 @@ window.initMap = async () => {
 	const buildings = document.getElementById("buildings");
 	buildings.innerHTML = ""; // remove element children
 	const buildingElements = locations.map((x) =>
-		buildings.appendChild(elementFromHtml(card(x.image, x.title, x.shortDescription)))
+		buildings.appendChild(elementFromHtml(card(x.image, x.title, x.shortDescription, x.page)))
 	);
 
 	const map = new google.maps.Map(document.getElementById("map"), {
@@ -214,8 +214,8 @@ const elementFromHtml = (html) => {
 	return element.firstChild;
 };
 
-const card = (image, title, description) =>
-	`<div class="building">
+const card = (image, title, description, page) =>
+	`<a href="${page}" style="text-decoration: none;" target="_blank"><div class="building">
   <img loading="lazy" src="${image}">
   <button class="like">
     <div style="scale: 1.9;">
@@ -227,7 +227,7 @@ const card = (image, title, description) =>
     <h1>${title}</h1>
     <p>${description}</p>
   </div>
-</div>`;
+</div></a>`;
 
 const modalRow = (simpleText = "", greenText = "") =>
 	`<div class="group">
