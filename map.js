@@ -7,6 +7,12 @@ const listOfType = async (type) => await listFrom(`${baseUrl()}/api/1.1/obj/${ty
 
 const idMap = (list) => list.reduce((obj, element) => ({ ...obj, [element._id]: element }), {});
 
+const markerWithColor = (hex, size = 20) => ({
+	url: `https://img.icons8.com/ios-filled/100/${hex}/100-percents.png`,
+	scaledSize: new google.maps.Size(size, size),
+	anchor: new google.maps.Point(size / 2, size / 2),
+});
+
 const getResidentialComplexes = async () => {
 	const [developers, features, complexes, apartments] = await Promise.all([
 		listOfType("developer"),
@@ -38,6 +44,7 @@ const getResidentialComplexes = async () => {
 		address: x.address?.address || "Нет адреса",
 		image: x.pictures?.[0] || "",
 		page: `https://berega.team/residential_complex/${x._id}`,
+		marker: markerWithColor("395296"),
 	}));
 };
 
@@ -59,6 +66,7 @@ const getSecondHomes = async () => {
 		address: x.address?.address || "Нет адреса",
 		image: x.pictures?.[0] || "",
 		page: `https://berega.team/second_home/${x._id}`,
+		marker: markerWithColor("439639"),
 	}));
 };
 
@@ -153,8 +161,8 @@ window.initMap = async () => {
 	const markers = locations.map((location, i) => {
 		const marker = new google.maps.Marker({
 			position: { lat: location.lat, lng: location.lng },
-			label: "",
 			card: buildingElements[i],
+			icon: location.marker,
 		});
 		marker.addListener("click", () => showModal(location));
 		return marker;
@@ -186,7 +194,18 @@ window.initMap = async () => {
 	map.addListener("zoom_changed", updateCards);
 	map.addListener("zoom_changed", () => map.getZoom() > 17 && map.setZoom(17));
 
-	new markerClusterer.MarkerClusterer({ markers, map });
+	new markerClusterer.MarkerClusterer({
+		markers,
+		map,
+		renderer: {
+			render: (cluster, stat, map) =>
+				new google.maps.Marker({
+					position: cluster.position,
+					label: { text: `${cluster.count}`, color: "white" },
+					icon: markerWithColor("3E716C", 30),
+				}),
+		},
+	});
 };
 
 const elementFromHtml = (html) => {
