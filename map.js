@@ -169,13 +169,15 @@ window.initMap = async () => {
 	});
 
 	let updateInstance = {};
+	let lastPolygon = new google.maps.Polygon({})
 	const updateCards = (polygon) => {
+		if (polygon) lastPolygon = polygon
 		const localInstance = (updateInstance = {});
 		const bounds = map.getBounds();
 		const showInBounds = (x) => (bounds.contains(x.getPosition()) ? show(x.card) : hide(x.card));
 		const showInPolygon = (x) =>
-			google.maps.geometry.poly.containsLocation(x.getPosition(), polygon) ? show(x.card) : hide(x.card);
-		const showIf = !polygon || polygon.getPath().length == 0 ? showInBounds : showInPolygon;
+			google.maps.geometry.poly.containsLocation(x.getPosition(), lastPolygon) ? show(x.card) : hide(x.card);
+		const showIf = lastPolygon.getPath().length == 0 ? showInBounds : showInPolygon;
 
 		const packSize = 16;
 		const iteration = (base) => {
