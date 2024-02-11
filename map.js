@@ -73,6 +73,20 @@ const getSecondHomes = async () => {
 const locationsSource = async () =>
 	(await Promise.all([getResidentialComplexes(), getSecondHomes()])).reduce((a, b) => [...a, ...b], []);
 
+const on = (target, eventName, handler) => {
+	target.addEventListener(eventName, handler);
+	return {
+		disable: () => target.removeEventListener(eventName, handler),
+	};
+};
+
+const onMap = (map, eventName, handler) => {
+	const subscription = map.addListener(eventName, handler);
+	return {
+		disable: () => google.maps.event.removeListener(subscription),
+	};
+};
+
 const enablePaintingOnMap = (map, onPolygonChanged = (polygon) => {}) => {
 	const draggable = { draggable: true, zoomControl: true, scrollwheel: true, disableDoubleClickZoom: false };
 	const notDraggable = { draggable: false, zoomControl: false, scrollwheel: false, disableDoubleClickZoom: true };
@@ -86,60 +100,56 @@ const enablePaintingOnMap = (map, onPolygonChanged = (polygon) => {}) => {
 		fillOpacity: 0.1,
 		clickable: false,
 	});
-	const mouseover = map.addListener("mouseover", () => {
-		let fired = false;
-		const altKeyDown = (e) => {
-			if (!e.altKey) return;
-			if (fired) return;
-			fired = true;
+	const button = elementFromHtml(paintingButton());
+	map.controls[google.maps.ControlPosition.BOTTOM_LEFT].push(button);
+	let disablePainting = () => {};
+	const enablePainting = (e) => {
+		console.log("Enable");
+		const mouseover = onMap(map, "mouseover", () => {
+			console.log("Mouseover");
+			const mousedown = on(document, "mousedown", (e) => {
+				map.setOptions(notDraggable);
+
+				const polyline = new google.maps.Polyline({
+					map,
+					path: [],
+					geodesic: true,
+					strokeColor: "#FFFF00",
+					strokeOpacity: 1.0,
+					strokeWeight: 2,
+				});
+
+				const mousemove = onMap(map, "mousemove", (e) => {
+					if (!(e.domEvent.buttons & 1)) return;
+					polyline.getPath().push(e.latLng);
+				});
+
+				const mouseup = on(document, "mouseup", (e) => {
+					mouseup.disable();
+					mousemove.disable();
+
+					map.setOptions(draggable);
+					polyline.setMap(null);
+					polygon.setPath(polyline.getPath());
+					onPolygonChanged(polygon);
+				});
+			});
+
+			const mouseout = onMap(map, "mouseout", () => {
+				console.log("Mouseout");
+				mouseout.disable();
+				mousedown.disable();
+			});
+		});
+
+		disablePainting = () => {
+			mouseover.disable();
 			polygon.setPath([]);
 			onPolygonChanged(polygon);
 		};
-		const altKeyUp = (e) => (fired = false);
-		document.addEventListener("keydown", altKeyDown);
-		document.addEventListener("keyup", altKeyUp);
-
-		const mousedown = (e) => {
-			if (!e.altKey) return;
-			map.setOptions(notDraggable);
-
-			const polyline = new google.maps.Polyline({
-				map,
-				path: [],
-				geodesic: true,
-				strokeColor: "#FFFF00",
-				strokeOpacity: 1.0,
-				strokeWeight: 2,
-			});
-
-			const mousemove = map.addListener("mousemove", (e) => {
-				if (!(e.domEvent.altKey && e.domEvent.buttons & 1)) return;
-				polyline.getPath().push(e.latLng);
-			});
-
-			const mouseup = (e) => {
-				document.removeEventListener("mouseup", mouseup);
-				google.maps.event.removeListener(mousemove);
-
-				map.setOptions(draggable);
-				polyline.setMap(null);
-				polygon.setPath(polyline.getPath());
-				onPolygonChanged(polygon);
-			};
-			document.addEventListener("mouseup", mouseup);
-		};
-		document.addEventListener("mousedown", mousedown);
-
-		const mouseout = map.addListener("mouseout", () => {
-			google.maps.event.removeListener(mouseout);
-			document.removeEventListener("mousedown", mousedown);
-			document.removeEventListener("keydown", altKeyDown);
-			document.removeEventListener("keyup", altKeyUp);
-		});
-	});
-	return {
-		disable: () => google.maps.event.removeListener(mouseover),
 	};
+
+	return on(button, "click", (e) => (button.classList.toggle("enabled") ? enablePainting(e) : disablePainting(e)));
 };
 
 window.initMap = async () => {
@@ -169,9 +179,9 @@ window.initMap = async () => {
 	});
 
 	let updateInstance = {};
-	let lastPolygon = new google.maps.Polygon({})
+	let lastPolygon = new google.maps.Polygon({});
 	const updateCards = (polygon) => {
-		if (polygon) lastPolygon = polygon
+		if (polygon) lastPolygon = polygon;
 		const localInstance = (updateInstance = {});
 		const bounds = map.getBounds();
 		const showInBounds = (x) => (bounds.contains(x.getPosition()) ? show(x.card) : hide(x.card));
@@ -236,6 +246,8 @@ const modalRow = (simpleText = "", greenText = "") =>
 		<p>${simpleText}</p>
 		<p class="price">${greenText}</p>
 	</div>`;
+
+const paintingButton = () => `<button id="map-painting-button">Painting<button>`;
 
 const hide = (element) => element.setAttribute("hidden", "");
 const show = (element) => element.removeAttribute("hidden");
