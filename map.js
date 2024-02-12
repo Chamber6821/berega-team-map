@@ -23,29 +23,32 @@ const getResidentialComplexes = async () => {
 	const developerMap = idMap(developers);
 	const featureMap = idMap(features);
 	const apartmentMap = idMap(apartments);
-	return complexes.map((x) => ({
-		title: x.name,
-		shortDescription: `${x.apartments?.length || 0} апартаментов`,
-		description: [
-			[
-				`${x.apartments?.length || 0} апартаментов`,
-				x.apartments &&
-					`от ${x.apartments
-						.map((x) => apartmentMap[x]?.total_price)
-						.filter((x) => x !== undefined)
-						.reduce((a, b) => (a < b ? a : b), Infinity)} $`,
+	return complexes.map((x) => {
+		const apartmentsInfo = [
+			`${x.apartments?.length || 0} апартаментов`,
+			x.apartments &&
+				`от ${x.apartments
+					.map((x) => apartmentMap[x]?.total_price)
+					.filter((x) => x !== undefined)
+					.reduce((a, b) => (a < b ? a : b), Infinity)} $`,
+		];
+		return {
+			title: x.name,
+			shortDescription: apartmentsInfo,
+			description: [
+				apartmentsInfo,
+				[`Дата сдачи • ${x["due_date (OS)"] || "Не известно"}`],
+				[`Застройщик • ${developerMap[x["Developer"]]?.name || "Не известен"}`],
 			],
-			[`Дата сдачи • ${x["due_date (OS)"] || "Не известно"}`],
-			[`Застройщик • ${developerMap[x["Developer"]]?.name || "Не известен"}`],
-		],
-		tag: featureMap?.[x.features?.[0]]?.name || "",
-		lat: x.address?.lat || 0,
-		lng: x.address?.lng || 0,
-		address: x.address?.address || "Нет адреса",
-		image: x.pictures?.[0] || "",
-		page: `https://berega.team/residential_complex/${x._id}`,
-		marker: markerWithColor("395296"),
-	}));
+			tag: featureMap?.[x.features?.[0]]?.name || "",
+			lat: x.address?.lat || 0,
+			lng: x.address?.lng || 0,
+			address: x.address?.address || "Нет адреса",
+			image: x.pictures?.[0] || "",
+			page: `https://berega.team/residential_complex/${x._id}`,
+			marker: markerWithColor("395296"),
+		};
+	});
 };
 
 const getSecondHomes = async () => {
@@ -53,7 +56,7 @@ const getSecondHomes = async () => {
 	const featureMap = idMap(features);
 	return homes.map((x) => ({
 		title: x.name,
-		shortDescription: "Не понял откуда брать",
+		shortDescription: ["Цена", `${x.price} $`],
 		description: [
 			["Цена", `${x.price} $`],
 			["Цена за м²", `${x.price_per_meter?.toFixed(2)} $`],
@@ -237,7 +240,9 @@ const card = (image, title, description, page) =>
   </button>
   <div class="body">
     <h1>${title}</h1>
-    <p>${description}</p>
+    <div class="flex-column">
+      ${modalRow(description[0], description[1])}
+    </div>
   </div>
 </div></a>`;
 
