@@ -66,8 +66,7 @@
   display: initial;
 }
 
-.building h1,
-#map-modal h1 {
+#map-widget h1 {
   font-family: var(--font_default);
   font-size: 16px;
   font-weight: 600;
@@ -75,8 +74,7 @@
   margin: 0px;
 }
 
-.building p,
-#map-modal p {
+#map-widget p {
   font-family: var(--font_default);
   font-size: 14px;
   font-weight: 400;
@@ -125,17 +123,6 @@
   margin: 0;
 }
 
-#map-modal .group {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
-
-#map-modal .price {
-  font-weight: 700;
-  color: rgb(0, 114, 61);
-}
-
 #map-modal .building-page {
   display: block;
   align-self: center;
@@ -162,10 +149,21 @@
   border-radius: 8px;
 }
 
-.flex-column {
+#map-widget .flex-column {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+#map-widget .flex-column .group {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+#map-widget .flex-column .price {
+  font-weight: 700;
+  color: rgb(0, 114, 61);
 }
 
 #map-painting-button {
