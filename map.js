@@ -170,6 +170,32 @@ window.initMap = async () => {
 			lat: average(locations.map((x) => x.lat)),
 			lng: average(locations.map((x) => x.lng)),
 		},
+		styles: [
+			{
+				"elementType": "labels",
+				"stylers": [
+					{
+						"visibility": "off"
+					}
+				]
+			},
+			{
+				"featureType": "administrative.land_parcel",
+				"stylers": [
+					{
+						"visibility": "off"
+					}
+				]
+			},
+			{
+				"featureType": "administrative.neighborhood",
+				"stylers": [
+					{
+						"visibility": "off"
+					}
+				]
+			}
+		]
 	});
 	const markers = locations.map((location, i) => {
 		const marker = new google.maps.Marker({
