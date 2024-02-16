@@ -172,30 +172,30 @@ window.initMap = async () => {
 		},
 		styles: [
 			{
-				"elementType": "labels",
-				"stylers": [
+				elementType: "labels",
+				stylers: [
 					{
-						"visibility": "off"
-					}
-				]
+						visibility: "off",
+					},
+				],
 			},
 			{
-				"featureType": "administrative.land_parcel",
-				"stylers": [
+				featureType: "administrative.land_parcel",
+				stylers: [
 					{
-						"visibility": "off"
-					}
-				]
+						visibility: "off",
+					},
+				],
 			},
 			{
-				"featureType": "administrative.neighborhood",
-				"stylers": [
+				featureType: "administrative.neighborhood",
+				stylers: [
 					{
-						"visibility": "off"
-					}
-				]
-			}
-		]
+						visibility: "off",
+					},
+				],
+			},
+		],
 	});
 	const markers = locations.map((location, i) => {
 		const marker = new google.maps.Marker({
