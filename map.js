@@ -243,7 +243,7 @@ window.initMap = async () => {
 				new google.maps.Marker({
 					position: cluster.position,
 					label: { text: `${cluster.count}`, color: "white" },
-					icon: markerWithColor("3E716C", 30),
+					icon: markerWithColor("439639", 30),
 				}),
 		},
 	});
