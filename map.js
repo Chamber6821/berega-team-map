@@ -83,11 +83,44 @@ const on = (target, eventName, handler) => {
 	};
 };
 
-const onMap = (map, eventName, handler) => {
-	const subscription = map.addListener(eventName, handler);
+const onOnce = (target, eventName, handler) => {
+	const subscription = on(target, eventName, (...args) => {
+		subscription.disable();
+		handler(...args);
+	});
+	return subscription;
+};
+
+const eventSourceFromGoogle = (googleObject) => {
+	const subscriptionMap = {};
 	return {
-		disable: () => google.maps.event.removeListener(subscription),
+		addEventListener: (eventName, handler) => {
+			if (!subscriptionMap[eventName]) subscriptionMap[eventName] = new Map();
+			subscriptionMap[eventName][handler] = googleObject.addListener(eventName, handler);
+		},
+		removeEventListener: (eventName, handler) => {
+			const mapForEvent = subscriptionMap[eventName];
+			google.maps.event.removeListener(mapForEvent[handler]);
+			mapForEvent.delete[handler];
+		},
 	};
+};
+
+const attachControl = (controlArray, element) => {
+	const newLength = controlArray.push(element);
+	return {
+		detach: () => {
+			controlArray.removeAt(newLength - 1);
+		},
+	};
+};
+
+const button = (title) => elementFromHtml(`<button class="primary">${title}</button>`);
+
+const buttonGroup = (...buttons) => {
+	const div = document.createElement("div");
+	div.replaceChildren(...buttons);
+	return div;
 };
 
 const enablePaintingOnMap = (map, onPolygonChanged = (polygon) => {}) => {
@@ -103,14 +136,29 @@ const enablePaintingOnMap = (map, onPolygonChanged = (polygon) => {}) => {
 		fillOpacity: 0.1,
 		clickable: false,
 	});
-	const button = elementFromHtml(paintingButton());
-	map.controls[google.maps.ControlPosition.BOTTOM_LEFT].push(button);
-	let disablePainting = () => {};
-	const enablePainting = (e) => {
-		console.log("Enable");
-		const mouseover = onMap(map, "mouseover", () => {
-			console.log("Mouseover");
-			const mousedown = on(document, "mousedown", (e) => {
+	const mapEventSource = eventSourceFromGoogle(map);
+	const drawAreaButton = button("Draw are");
+	const cancelDrawingButton = button("Cancel drawing");
+	const removeAreaButton = button("Remove area");
+	const drawingControls = attachControl(
+		map.controls[google.maps.ControlPosition.TOP_LEFT],
+		buttonGroup(drawAreaButton, removeAreaButton, cancelDrawingButton)
+	);
+	show(drawAreaButton);
+	hide(cancelDrawingButton);
+	hide(removeAreaButton);
+
+	const removeArea = on(removeAreaButton, "click", () => {
+		hide(removeAreaButton);
+		polygon.setPath([]);
+		onPolygonChanged(polygon);
+	});
+	const enablePainting = on(drawAreaButton, "click", () => {
+		hide(drawAreaButton);
+		show(cancelDrawingButton);
+
+		const mouseover = on(mapEventSource, "mouseover", () => {
+			const mousedown = on(document, "mousedown", () => {
 				map.setOptions(notDraggable);
 
 				const polyline = new google.maps.Polyline({
@@ -122,37 +170,38 @@ const enablePaintingOnMap = (map, onPolygonChanged = (polygon) => {}) => {
 					strokeWeight: 2,
 				});
 
-				const mousemove = onMap(map, "mousemove", (e) => {
+				const mousemove = on(mapEventSource, "mousemove", (e) => {
 					if (!(e.domEvent.buttons & 1)) return;
 					polyline.getPath().push(e.latLng);
 				});
 
-				const mouseup = on(document, "mouseup", (e) => {
-					mouseup.disable();
+				onOnce(document, "mouseup", () => {
 					mousemove.disable();
 
 					map.setOptions(draggable);
 					polyline.setMap(null);
 					polygon.setPath(polyline.getPath());
 					onPolygonChanged(polygon);
+					show(removeAreaButton);
 				});
 			});
-
-			const mouseout = onMap(map, "mouseout", () => {
-				console.log("Mouseout");
-				mouseout.disable();
-				mousedown.disable();
-			});
+			onOnce(mapEventSource, "mouseout", mousedown.disable);
 		});
-
-		disablePainting = () => {
+		onOnce(cancelDrawingButton, "click", () => {
 			mouseover.disable();
-			polygon.setPath([]);
-			onPolygonChanged(polygon);
-		};
-	};
+			show(drawAreaButton);
+			show(removeAreaButton);
+			hide(cancelDrawingButton);
+		});
+	});
 
-	return on(button, "click", (e) => (button.classList.toggle("enabled") ? enablePainting(e) : disablePainting(e)));
+	return {
+		disable: () => {
+			removeArea.disable();
+			enablePainting.disable();
+			drawingControls.detach();
+		},
+	};
 };
 
 window.initMap = async () => {
@@ -277,8 +326,6 @@ const modalRow = (simpleText = "", greenText = "") =>
 		<p>${simpleText}</p>
 		<p class="price">${greenText}</p>
 	</div>`;
-
-const paintingButton = () => `<button id="map-painting-button">Painting<button>`;
 
 const hide = (element) => element.setAttribute("hidden", "");
 const show = (element) => element.removeAttribute("hidden");
