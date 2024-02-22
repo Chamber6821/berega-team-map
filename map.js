@@ -1,9 +1,24 @@
-const listFrom = async (url) => (await (await fetch(url)).json())?.response?.results || [];
+const range = (n) => [...Array(n).keys()];
+
+const jsonFrom = async (url) => await (await fetch(url)).json();
+
+const listFrom = async (url) => (await jsonFrom(url))?.response?.results || [];
 
 const baseUrl = () =>
 	window.location.href.includes("version-test") ? "https://berega.team/version-test" : "https://berega.team";
 
-const listOfType = async (type) => await listFrom(`${baseUrl()}/api/1.1/obj/${type}`);
+const urlForType = (type) => new URL(`${baseUrl()}/api/1.1/obj/${type}`);
+
+const urlWithParam = (url, param, value) => {
+	const newUrl = new URL(url);
+	newUrl.searchParams.set(param, value);
+	return newUrl;
+};
+
+const listOfType = async (type, cursor = 0) => await listFrom(urlWithParam(urlForType(type), "cursor", cursor));
+
+const countOfType = async (type) =>
+	(await jsonFrom(urlWithParam(urlForType(type), "limit", 1)))?.response?.remaining || 0;
 
 const idMap = (list) => list.reduce((obj, element) => ({ ...obj, [element._id]: element }), {});
 
@@ -14,11 +29,20 @@ const markerWithColor = (hex, size = 20) => ({
 });
 
 const getResidentialComplexes = async () => {
+	const pageSize = 100;
 	const [developers, features, complexes, apartments] = await Promise.all([
 		listOfType("developer"),
 		listOfType("features"),
 		listOfType("residentialcomplex"),
-		listOfType("apartments"),
+		countOfType("apartments")
+			.then((count) =>
+				Promise.all(
+					range(Math.ceil(count / pageSize)).map(
+						async (page) => await listOfType("apartments", page * pageSize)
+					)
+				)
+			)
+			.then((parts) => parts.reduce((a, b) => [...a, ...b], [])),
 	]);
 	const developerMap = idMap(developers);
 	const featureMap = idMap(features);
