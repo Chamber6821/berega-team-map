@@ -192,9 +192,9 @@ const enablePaintingOnMap = (map, onPolygonChanged = (polygon) => {}) => {
 		clickable: false,
 	});
 	const mapEventSource = eventSourceFromGoogle(map);
-	const drawAreaButton = button("Draw are");
-	const cancelDrawingButton = button("Cancel drawing");
-	const removeAreaButton = button("Remove area");
+	const drawAreaButton = button("Нарисовать область");
+	const cancelDrawingButton = button("Закончить рисование");
+	const removeAreaButton = button("Удалить область");
 	const drawingControls = attachControl(
 		map.controls[google.maps.ControlPosition.TOP_LEFT],
 		buttonGroup(drawAreaButton, removeAreaButton, cancelDrawingButton)
