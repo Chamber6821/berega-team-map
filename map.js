@@ -344,8 +344,6 @@ window.initMap = async () => {
 	};
 
 	enablePaintingOnMap(map, updateCards);
-	map.addListener("center_changed", updateCards);
-	map.addListener("zoom_changed", updateCards);
 	map.addListener(
 		"zoom_changed",
 		() => map.getZoom() > 17 && map.setZoom(17)
