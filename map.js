@@ -184,10 +184,10 @@ const enablePaintingOnMap = (map, onPolygonChanged = (polygon) => {}) => {
 	const polygon = new google.maps.Polygon({
 		map,
 		paths: [],
-		strokeColor: "#00FF00",
+		strokeColor: "#439639",
 		strokeOpacity: 0.8,
 		strokeWeight: 2,
-		fillColor: "#00FF00",
+		fillColor: "#439639",
 		fillOpacity: 0.1,
 		clickable: false,
 	});
@@ -220,7 +220,7 @@ const enablePaintingOnMap = (map, onPolygonChanged = (polygon) => {}) => {
 					map,
 					path: [],
 					geodesic: true,
-					strokeColor: "#FFFF00",
+					strokeColor: "#439639",
 					strokeOpacity: 1.0,
 					strokeWeight: 2,
 				});
