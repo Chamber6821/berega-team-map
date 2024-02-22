@@ -53,14 +53,24 @@ const getResidentialComplexes = async () => {
 	const developerMap = idMap(developers);
 	const featureMap = idMap(features);
 	const apartmentMap = idMap(apartments);
+	console.log(apartmentMap)
 	return complexes.map((x) => {
+		const apartments = (x.apartments || [])
+		const minApartmentPrice = apartments
+			.map((x) => apartmentMap[x])
+			.filter((x) => x !== undefined)
+			.map(x => x.total_price || x.total_area * x.price_per_meter)
+			.reduce((a, b) => (a < b ? a : b), Infinity);
+		if (minApartmentPrice === Infinity || !(minApartmentPrice > 1)) {
+			console.log(
+				x.name,
+				apartments,
+				apartments.map((x) => apartmentMap[x]?.total_price)
+			);
+		}
 		const apartmentsInfo = [
 			`${x.apartments?.length || 0} апартаментов`,
-			x.apartments &&
-				`от ${x.apartments
-					.map((x) => apartmentMap[x]?.total_price)
-					.filter((x) => x !== undefined)
-					.reduce((a, b) => (a < b ? a : b), Infinity)} $`,
+			`от ${minApartmentPrice.toFixed(2)} $`,
 		];
 		return {
 			title: x.name,
