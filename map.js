@@ -53,13 +53,13 @@ const getResidentialComplexes = async () => {
 	const developerMap = idMap(developers);
 	const featureMap = idMap(features);
 	const apartmentMap = idMap(apartments);
-	console.log(apartmentMap)
+	console.log(apartmentMap);
 	return complexes.map((x) => {
-		const apartments = (x.apartments || [])
+		const apartments = x.apartments || [];
 		const minApartmentPrice = apartments
 			.map((x) => apartmentMap[x])
 			.filter((x) => x !== undefined)
-			.map(x => x.total_price || x.total_area * x.price_per_meter)
+			.map((x) => x.total_price || x.total_area * x.price_per_meter)
 			.reduce((a, b) => (a < b ? a : b), Infinity);
 		if (minApartmentPrice === Infinity || !(minApartmentPrice > 1)) {
 			console.log(
@@ -329,8 +329,7 @@ window.initMap = async () => {
 		if (polygon) lastPolygon = polygon;
 		const localInstance = (updateInstance = {});
 		const bounds = map.getBounds();
-		const showInBounds = (x) =>
-			bounds.contains(x.getPosition()) ? show(x.card) : hide(x.card);
+		const showInBounds = (x) => show(x.card);
 		const showInPolygon = (x) =>
 			google.maps.geometry.poly.containsLocation(
 				x.getPosition(),
