@@ -282,6 +282,7 @@ window.initMap = async () => {
 
 	const map = new google.maps.Map(document.getElementById("map"), {
 		zoom: 6,
+		gestureHandling: "greedy",
 		center: {
 			lat: average(locations.map((x) => x.lat)),
 			lng: average(locations.map((x) => x.lng)),
