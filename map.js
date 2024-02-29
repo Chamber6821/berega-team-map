@@ -362,6 +362,9 @@ window.initMap = async () => {
 	new markerClusterer.MarkerClusterer({
 		markers,
 		map,
+		algorithmOptions: {
+			maxZoom: 17,
+		},
 		renderer: {
 			render: (cluster, stat, map) =>
 				new google.maps.Marker({
