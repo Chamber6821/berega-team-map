@@ -34,43 +34,17 @@ const markerWithColor = (hex, size = 20) => ({
 });
 
 const getResidentialComplexes = async () => {
-	const pageSize = 100;
-	const [developers, features, complexes, apartments] = await Promise.all([
+	const [developers, features, complexes] = await Promise.all([
 		listOfType("developer"),
 		listOfType("features"),
 		listOfType("residentialcomplex"),
-		countOfType("apartments")
-			.then((count) =>
-				Promise.all(
-					range(Math.ceil(count / pageSize)).map(
-						async (page) =>
-							await listOfType("apartments", page * pageSize)
-					)
-				)
-			)
-			.then((parts) => parts.reduce((a, b) => [...a, ...b], [])),
 	]);
 	const developerMap = idMap(developers);
 	const featureMap = idMap(features);
-	const apartmentMap = idMap(apartments);
-	console.log(apartmentMap);
 	return complexes.map((x) => {
-		const apartments = x.apartments || [];
-		const minApartmentPrice = apartments
-			.map((x) => apartmentMap[x])
-			.filter((x) => x !== undefined)
-			.map((x) => x.total_price || x.total_area * x.price_per_meter)
-			.reduce((a, b) => (a < b ? a : b), Infinity);
-		if (minApartmentPrice === Infinity || !(minApartmentPrice > 1)) {
-			console.log(
-				x.name,
-				apartments,
-				apartments.map((x) => apartmentMap[x]?.total_price)
-			);
-		}
 		const apartmentsInfo = [
 			`${x.apartments?.length || 0} апартаментов`,
-			`от ${minApartmentPrice.toFixed(2)} $`,
+			`от ${x.price_from.toFixed(2)} $`,
 		];
 		return {
 			title: x.name,
