@@ -33,6 +33,12 @@ const markerWithColor = (hex, size = 20) => ({
 	anchor: new google.maps.Point(size / 2, size / 2),
 });
 
+const price = (count) => count
+	.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+	.replace(',', ' ')
+	.replace('$', '$ ')
+	.replace(/\.\d+$/, '');
+
 const getResidentialComplexes = async () => {
 	const [developers, features, complexes] = await Promise.all([
 		listOfType("developer"),
@@ -44,7 +50,7 @@ const getResidentialComplexes = async () => {
 	return complexes.map((x) => {
 		const apartmentsInfo = [
 			`${x.apartments?.length || 0} апартаментов`,
-			`от ${x.price_from.toFixed(2)} $`,
+			`от ${price(x.price_from)}`,
 		];
 		return {
 			title: x.name,
@@ -73,14 +79,14 @@ const getSecondHomes = async () => {
 	const featureMap = idMap(features);
 	return homes.map((x) => ({
 		title: x.name,
-		shortDescription: ["Цена", `${x.price} $`],
+		shortDescription: ["Цена", price(x.price)],
 		description: [
-			["Цена", `${x.price} $`],
-			["Цена за м²", `${x.price_per_meter?.toFixed(2)} $`],
+			["Цена", price(x.price)],
+			["Цена за м²", price(x.price_per_meter || 0)],
 			[`${x.floor} этаж, ${x.total_area} м²`],
 		],
 		tag: featureMap?.[x.Features?.[0]]?.name || "",
-		price: `${x.price} $`,
+		price: price(x.price),
 		lat: x.address?.lat || 0,
 		lng: x.address?.lng || 0,
 		address: x.address?.address || "Нет адреса",
