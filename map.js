@@ -33,11 +33,12 @@ const markerWithColor = (hex, size = 20) => ({
 	anchor: new google.maps.Point(size / 2, size / 2),
 });
 
-const price = (count) => count
-	.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
-	.replace(',', ' ')
-	.replace('$', '$ ')
-	.replace(/\.\d+$/, '');
+const price = (count) =>
+	count
+		.toLocaleString("en-US", { style: "currency", currency: "USD" })
+		.replace(",", " ")
+		.replace("$", "$ ")
+		.replace(/\.\d+$/, "");
 
 const getResidentialComplexes = async () => {
 	const [developers, features, complexes] = await Promise.all([
