@@ -64,7 +64,7 @@ const getResidentialComplexes = async () => {
 			lat: x.address?.lat || 0,
 			lng: x.address?.lng || 0,
 			address: x.address?.address || "Нет адреса",
-			image: x.pictures?.[0] || "",
+			image: `https:${x.pictures?.[0]}`,
 			page: `https://berega.team/residential_complex/${x._id}`,
 			marker: markerWithColor("395296"),
 		};
@@ -90,7 +90,7 @@ const getSecondHomes = async () => {
 		lat: x.address?.lat || 0,
 		lng: x.address?.lng || 0,
 		address: x.address?.address || "Нет адреса",
-		image: x.pictures?.[0] || "",
+		image: `https:${x.pictures?.[0]}`,
 		page: `https://berega.team/second_home/${x._id}`,
 		marker: markerWithColor("439639"),
 	}));
