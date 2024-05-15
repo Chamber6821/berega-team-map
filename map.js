@@ -83,7 +83,7 @@ const getResidentialComplexes = async () => {
 
 const getSecondHomes = async () => {
 	const [homes, features] = await Promise.all([
-		fullListOfType("secondhomes"),
+		fullListOfType("secondhome"),
 		fullListOfType("features"),
 	]);
 	const featureMap = idMap(features);
