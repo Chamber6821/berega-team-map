@@ -52,11 +52,7 @@ const getResidentialComplexes = async () => {
 			description: [
 				apartmentsInfo,
 				[`Дата сдачи • ${x["due_date (OS)"] || "Не известно"}`],
-				[
-					`Застройщик • ${
-						developerMap[x["Developer"]]?.name || "Не известен"
-					}`,
-				],
+				[`Застройщик • ${developerMap[x["Developer"]]?.name || "Не известен"}`],
 			],
 			tag: featureMap?.[x.features?.[0]]?.name || "",
 			lat: x.address?.lat || 0,
@@ -97,7 +93,7 @@ const getSecondHomes = async () => {
 const locationsSource = async () =>
 	(await Promise.all([getResidentialComplexes(), getSecondHomes()])).reduce(
 		(a, b) => [...a, ...b],
-		[]
+		[],
 	);
 
 const on = (target, eventName, handler) => {
@@ -119,11 +115,10 @@ const eventSourceFromGoogle = (googleObject) => {
 	const subscriptionMap = {};
 	return {
 		addEventListener: (eventName, handler) => {
-			if (!subscriptionMap[eventName])
-				subscriptionMap[eventName] = new Map();
+			if (!subscriptionMap[eventName]) subscriptionMap[eventName] = new Map();
 			subscriptionMap[eventName][handler] = googleObject.addListener(
 				eventName,
-				handler
+				handler,
 			);
 		},
 		removeEventListener: (eventName, handler) => {
@@ -181,7 +176,7 @@ const enablePaintingOnMap = (map, onPolygonChanged = (polygon) => {}) => {
 	const removeAreaButton = button("Удалить область");
 	const drawingControls = attachControl(
 		map.controls[google.maps.ControlPosition.TOP_LEFT],
-		buttonGroup(drawAreaButton, removeAreaButton, cancelDrawingButton)
+		buttonGroup(drawAreaButton, removeAreaButton, cancelDrawingButton),
 	);
 	show(drawAreaButton);
 	hide(cancelDrawingButton);
@@ -250,8 +245,8 @@ window.initMap = async () => {
 	buildings.innerHTML = ""; // remove element children
 	const buildingElements = locations.map((x) =>
 		buildings.appendChild(
-			elementFromHtml(card(x.image, x.title, x.shortDescription, x.page))
-		)
+			elementFromHtml(card(x.image, x.title, x.shortDescription, x.page)),
+		),
 	);
 
 	const map = new google.maps.Map(document.getElementById("map"), {
@@ -306,10 +301,7 @@ window.initMap = async () => {
 		const bounds = map.getBounds();
 		const showInBounds = (x) => show(x.card);
 		const showInPolygon = (x) =>
-			google.maps.geometry.poly.containsLocation(
-				x.getPosition(),
-				lastPolygon
-			)
+			google.maps.geometry.poly.containsLocation(x.getPosition(), lastPolygon)
 				? show(x.card)
 				: hide(x.card);
 		const showIf =
@@ -328,10 +320,7 @@ window.initMap = async () => {
 	};
 
 	enablePaintingOnMap(map, updateCards);
-	map.addListener(
-		"zoom_changed",
-		() => map.getZoom() > 17 && map.setZoom(17)
-	);
+	map.addListener("zoom_changed", () => map.getZoom() > 17 && map.setZoom(17));
 
 	new markerClusterer.MarkerClusterer({
 		markers,
@@ -393,8 +382,8 @@ const showModal = ({ tag, image, title, address, description, page }) => {
 		.getElementById("map-modal-description")
 		.replaceChildren(
 			...description.map(([simple, green]) =>
-				elementFromHtml(modalRow(simple, green))
-			)
+				elementFromHtml(modalRow(simple, green)),
+			),
 		);
 	document.getElementById("map-modal-page").setAttribute("href", page);
 
