@@ -24,6 +24,15 @@ const countOfType = async (type) =>
 	(await jsonFrom(urlWithParam(urlForType(type), "limit", 1)))?.response
 		?.remaining || 0;
 
+const fullListOfType = async (type) =>
+	(
+		await Promise.all(
+			[...Array(Math.ceil((await countOfType(type)) / 100)).keys()].map(
+				async (x) => await listOfType(type, x * 100),
+			),
+		)
+	).reduce((a, b) => [...a, ...b], []);
+
 const idMap = (list) =>
 	list.reduce((obj, element) => ({ ...obj, [element._id]: element }), {});
 
@@ -34,7 +43,7 @@ const markerWithColor = (hex, size = 20) => ({
 });
 
 const price = (count) =>
-	count
+	(count || 0)
 		.toLocaleString("en-US", { style: "currency", currency: "USD" })
 		.replace(",", " ")
 		.replace("$", "$ ")
@@ -42,9 +51,9 @@ const price = (count) =>
 
 const getResidentialComplexes = async () => {
 	const [developers, features, complexes] = await Promise.all([
-		listOfType("developer"),
-		listOfType("features"),
-		listOfType("residentialcomplex"),
+		fullListOfType("developer"),
+		fullListOfType("features"),
+		fullListOfType("residentialcomplex"),
 	]);
 	const developerMap = idMap(developers);
 	const featureMap = idMap(features);
@@ -74,8 +83,8 @@ const getResidentialComplexes = async () => {
 
 const getSecondHomes = async () => {
 	const [homes, features] = await Promise.all([
-		listOfType("secondhomes"),
-		listOfType("features"),
+		fullListOfType("secondhomes"),
+		fullListOfType("features"),
 	]);
 	const featureMap = idMap(features);
 	return homes.map((x) => ({
